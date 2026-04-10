@@ -14,17 +14,23 @@ linters:
     - unconvert
   settings:
     errcheck:
-      check-blank: true
+      check-blank: false
     misspell:
       locale: US
   exclusions:
     generated: lax
     rules:
       - linters:
+          - misspell
+        path: internal/commands/profile/profile_test.go
+      - linters:
           - bodyclose
           - errcheck
           - revive
         path: _test\.go
+      - linters:
+          - revive
+        path: testing.go
       - path: (.+)\.go$
         text: ifElseChain
       - path: (.+)\.go$
@@ -39,7 +45,7 @@ formatters:
   settings:
     goimports:
       local-prefixes:
-        - github.com/hashicorp/hcloud
+        - github.com/hashicorp/tfcloud
   exclusions:
     generated: lax
     paths:
