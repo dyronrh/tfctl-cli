@@ -31,8 +31,8 @@ func TestDisplay(t *testing.T) {
 			Profile: p,
 		}
 		r.NoError(displayRun(opts))
-		r.Contains(io.Output.String(), "Hostname")
-		r.Contains(io.Output.String(), "No Color")
+		r.Contains(io.Output.String(), "hostname")
+		r.Contains(io.Output.String(), "no_color")
 	})
 
 	t.Run("json", func(t *testing.T) {

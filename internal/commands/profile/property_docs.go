@@ -35,8 +35,8 @@ func addCoreProperties(b *availablePropertiesBuilder) {
 	b.AddProperty("", "organization", "Organization of the HCP Terraform or Terraform Enterprise organization to operate on.")
 	b.AddProperty("", "hostname", `
 		Default hostname API endpoints, if different from HCP Terraform (app.terraform.io). This affects which regional
-		endpoints are used for HCP services. For eu regions, use app.eu.terraform.io..`)
-
+		endpoints are used for HCP services. For eu regions, use app.eu.terraform.io.`)
+	b.AddProperty("", "token", "The API token to use for all requests.")
 	b.AddProperty("", "no_color", "If True, color will not be used when printing messages in the terminal.")
 	b.AddProperty("", "quiet", "If True, prompts will be disabled and output will be minimized.")
 	b.AddProperty("", "verbosity", `
@@ -44,7 +44,7 @@ func addCoreProperties(b *availablePropertiesBuilder) {
 		equivalent of using the global {{ template "mdCodeOrBold" "--verbose" }} flag. Supported log levels:
 		{{ template "mdCodeOrBold" "trace" }}, {{ template "mdCodeOrBold" "debug" }},
 		{{ template "mdCodeOrBold" "info" }}, {{ template "mdCodeOrBold" "warn" }}, and
-		{{ template "mdCodeOrBold" "error" }}. `)
+		{{ template "mdCodeOrBold" "error" }}.`)
 }
 
 type availablePropertiesBuilder struct {

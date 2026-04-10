@@ -55,7 +55,7 @@ func TestList(t *testing.T) {
 
 	// Check we got the output we expected
 	expected := [][]string{
-		{"Name", "Active", "Organization ID"},
+		{"Name", "Active", "Organization"},
 		{p1.Name, "false", p1.Organization},
 		{p2.Name, "true", p2.Organization},
 		{p3.Name, "false", p3.Organization},

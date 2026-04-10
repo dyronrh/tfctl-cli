@@ -18,7 +18,7 @@ func TestCreate(t *testing.T) {
 	l := profile.TestLoader(t)
 	io := iostreams.Test()
 
-	p1, p2 := "test", "test-other"
+	p1, p2 := "test", "test_other"
 	opts := &CreateOpts{
 		IO:         io,
 		Profiles:   l,

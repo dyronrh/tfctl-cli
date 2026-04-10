@@ -25,8 +25,8 @@ func TestGet(t *testing.T) {
 	*p.NoColor = true
 
 	expect := map[string]string{
-		"organization_id": "123",
-		"no_color":        "true",
+		"organization": "123",
+		"no_color":     "true",
 	}
 
 	for k, v := range expect {

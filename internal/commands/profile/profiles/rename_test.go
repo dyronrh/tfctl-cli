@@ -44,7 +44,7 @@ func TestRename(t *testing.T) {
 			Active:       "foo",
 			Create:       []string{"foo", "bar"},
 			ExistingName: "bad",
-			NewName:      "new-name",
+			NewName:      "new_name",
 			Error:        "profile \"bad\" does not exist",
 		},
 		{

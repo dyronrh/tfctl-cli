@@ -32,7 +32,7 @@ func NewCmdRename(ctx *cmd.Context) *cmd.Command {
 				To rename profile {{ template "mdCodeOrBold" "my-profile" }} to
 				{{ template "mdCodeOrBold" "new-profile" }}, run:
 				`),
-				Command: "$ tfcloud profile profiles rename my-profile --new-name=new-profile",
+				Command: "$ tfcloud profile profiles rename my-profile --new-name=new_profile",
 			},
 		},
 		Args: cmd.PositionalArguments{
@@ -47,7 +47,7 @@ func NewCmdRename(ctx *cmd.Context) *cmd.Command {
 		Flags: cmd.Flags{
 			Local: []*cmd.Flag{
 				{
-					Name:         "new-name",
+					Name:         "new_name",
 					DisplayValue: "NEW_NAME",
 					Description:  "Specifies the new name of the profile.",
 					Value:        flagvalue.Simple("", &opts.NewName),
