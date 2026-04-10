@@ -2,6 +2,8 @@
 
 Effectively interact with the HCP Terraform platform.
 
+![tfcloud](assets/tfcloud.png "tfcloud")
+
 #### Quick Start
 
 tfcloud uses a host-centric, layered configuration with a logical precedence. Configuration commands

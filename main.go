@@ -12,12 +12,12 @@ import (
 	"github.com/hashicorp/cli"
 	"github.com/posener/complete"
 
-	"github.com/hashicorp/tfcloud/internal/cmd"
-	"github.com/hashicorp/tfcloud/internal/command"
+	"github.com/hashicorp/tfcloud/internal/commands/tfcloud"
 	"github.com/hashicorp/tfcloud/internal/config"
-	"github.com/hashicorp/tfcloud/internal/format"
-	"github.com/hashicorp/tfcloud/internal/iostreams"
-	"github.com/hashicorp/tfcloud/internal/profile"
+	"github.com/hashicorp/tfcloud/internal/pkg/cmd"
+	"github.com/hashicorp/tfcloud/internal/pkg/format"
+	"github.com/hashicorp/tfcloud/internal/pkg/iostreams"
+	"github.com/hashicorp/tfcloud/internal/pkg/profile"
 )
 
 func main() {
@@ -71,7 +71,7 @@ func realMain() int {
 	}
 
 	// Get the HCP Root command
-	tfcloudCmd := NewCmdRoot(cCtx)
+	tfcloudCmd := tfcloud.NewCmdRoot(cCtx)
 	cmdMap := cmd.ToCommandMap(tfcloudCmd)
 
 	c := cli.CLI{
@@ -146,32 +146,6 @@ func loadProfile(_ context.Context) (*profile.Profile, error) {
 	}
 
 	return p, nil
-}
-
-func NewCmdRoot(ctx *cmd.Context) *cmd.Command {
-	c := &cmd.Command{
-		Name:      config.Name,
-		ShortHelp: "Interact with HCP Terraform and Terraform Enterprise.",
-		LongHelp:  "The tfcloud command-line interface (CLI) is a unified tool to managing HCP Terraform and Terraform Enterpise from the command line.",
-	}
-
-	//  _   _  ___ _____ _____
-	// | \ | |/ _ \_   _| ____|
-	// |  \| | | | || | |  _|
-	// | |\  | |_| || | | |___
-	// |_| \_|\___/ |_| |_____|
-	//
-	// When adding a top level command group, be sure to regenerate the
-	// screenshot in the README by running `make gen/screenshot`.
-
-	// Add the subcommands
-	c.AddChild(command.NewCmdAPI(ctx))
-	c.AddChild(command.NewCmdVariable(ctx))
-
-	// Configure the command as the root command.
-	cmd.ConfigureRootCommand(ctx, c)
-
-	return c
 }
 
 // IsAutocomplete returns true if the CLI is being run in an autocomplete
