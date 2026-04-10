@@ -6,10 +6,11 @@ package profile
 import (
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/hashicorp/tfcloud/internal/pkg/format"
 	"github.com/hashicorp/tfcloud/internal/pkg/iostreams"
 	"github.com/hashicorp/tfcloud/internal/pkg/profile"
-	"github.com/stretchr/testify/require"
 )
 
 func TestDisplay(t *testing.T) {

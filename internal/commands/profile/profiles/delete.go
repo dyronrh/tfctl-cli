@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/tfcloud/internal/pkg/profile"
 )
 
+// NewCmdDelete returns the `tfcloud profile profiles delete` command for deleting tfcloud CLI profiles.
 func NewCmdDelete(ctx *cmd.Context) *cmd.Command {
 	opts := &DeleteOpts{
 		IO: ctx.IO,
@@ -55,7 +56,7 @@ func NewCmdDelete(ctx *cmd.Context) *cmd.Command {
 				},
 			},
 		},
-		RunF: func(c *cmd.Command, args []string) error {
+		RunF: func(_ *cmd.Command, args []string) error {
 			l, err := profile.NewLoader()
 			if err != nil {
 				return err
@@ -69,6 +70,7 @@ func NewCmdDelete(ctx *cmd.Context) *cmd.Command {
 	return cmd
 }
 
+// DeleteOpts defines the options for the `tfcloud profile profiles delete` command.
 type DeleteOpts struct {
 	IO       iostreams.IOStreams
 	Profiles *profile.Loader

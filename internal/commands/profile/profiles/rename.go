@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/tfcloud/internal/pkg/profile"
 )
 
+// NewCmdRename returns the `tfcloud profile profiles rename` command for renaming a tfcloud CLI profile.
 func NewCmdRename(ctx *cmd.Context) *cmd.Command {
 	opts := &RenameOpts{
 		IO: ctx.IO,
@@ -55,7 +56,7 @@ func NewCmdRename(ctx *cmd.Context) *cmd.Command {
 			},
 		},
 		NoAuthRequired: true,
-		RunF: func(c *cmd.Command, args []string) error {
+		RunF: func(_ *cmd.Command, args []string) error {
 			opts.ExistingName = args[0]
 			l, err := profile.NewLoader()
 			if err != nil {
@@ -69,6 +70,7 @@ func NewCmdRename(ctx *cmd.Context) *cmd.Command {
 	return renameCmd
 }
 
+// RenameOpts defines the options for the `tfcloud profile profiles rename` command.
 type RenameOpts struct {
 	IO           iostreams.IOStreams
 	Profiles     *profile.Loader

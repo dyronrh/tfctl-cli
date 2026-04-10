@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/tfcloud/internal/pkg/profile"
 )
 
+// NewCmdActivate returns the `tfcloud profile profiles activate` command for activating a tfcloud CLI profile.
 func NewCmdActivate(ctx *cmd.Context) *cmd.Command {
 	opts := &ActivateOpts{
 		IO: ctx.IO,
@@ -41,7 +42,7 @@ func NewCmdActivate(ctx *cmd.Context) *cmd.Command {
 			},
 		},
 		NoAuthRequired: true,
-		RunF: func(c *cmd.Command, args []string) error {
+		RunF: func(_ *cmd.Command, args []string) error {
 			opts.Name = args[0]
 			l, err := profile.NewLoader()
 			if err != nil {
@@ -55,6 +56,7 @@ func NewCmdActivate(ctx *cmd.Context) *cmd.Command {
 	return cmd
 }
 
+// ActivateOpts defines the options for the `tfcloud profile profiles activate` command.
 type ActivateOpts struct {
 	IO       iostreams.IOStreams
 	Profiles *profile.Loader

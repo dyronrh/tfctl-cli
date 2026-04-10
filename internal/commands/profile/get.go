@@ -9,13 +9,15 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/mitchellh/mapstructure"
+
 	"github.com/hashicorp/tfcloud/internal/pkg/cmd"
 	"github.com/hashicorp/tfcloud/internal/pkg/heredoc"
 	"github.com/hashicorp/tfcloud/internal/pkg/iostreams"
 	"github.com/hashicorp/tfcloud/internal/pkg/profile"
-	"github.com/mitchellh/mapstructure"
 )
 
+// NewCmdGet returns the `tfcloud profile get` command for getting a tfcloud CLI property.
 func NewCmdGet(ctx *cmd.Context) *cmd.Command {
 	opts := &GetOpts{
 		Ctx:     ctx.ShutdownCtx,
@@ -50,7 +52,7 @@ func NewCmdGet(ctx *cmd.Context) *cmd.Command {
 			availablePropertiesDoc(ctx.IO),
 		},
 		NoAuthRequired: true,
-		RunF: func(c *cmd.Command, args []string) error {
+		RunF: func(_ *cmd.Command, args []string) error {
 			opts.Property = args[0]
 
 			return getRun(opts)
@@ -60,6 +62,7 @@ func NewCmdGet(ctx *cmd.Context) *cmd.Command {
 	return cmd
 }
 
+// GetOpts defines the options for the `tfcloud profile get` command.
 type GetOpts struct {
 	Ctx     context.Context
 	IO      iostreams.IOStreams

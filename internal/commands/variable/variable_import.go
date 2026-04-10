@@ -18,8 +18,8 @@ import (
 	terraformcfg "github.com/hashicorp/tfcloud/internal/pkg/terraform"
 )
 
-// VariableImportOpts stores the options parsed from flags for the variable import command.
-type VariableImportOpts struct {
+// ImportOpts stores the options parsed from flags for the variable import command.
+type ImportOpts struct {
 	IO              iostreams.IOStreams
 	Env             []string
 	VariableSetName string
@@ -30,7 +30,7 @@ type VariableImportOpts struct {
 
 // NewCmdVariableImport creates the `tfcloud variable import` command.
 func NewCmdVariableImport(ctx *cmd.Context) *cmd.Command {
-	opts := &VariableImportOpts{
+	opts := &ImportOpts{
 		IO: ctx.IO,
 	}
 
@@ -207,7 +207,7 @@ type existingVariable struct {
 	Category string
 }
 
-func resolveTarget(ctx context.Context, apiClient *client.Client, opts *VariableImportOpts) (*variableTarget, error) {
+func resolveTarget(ctx context.Context, apiClient *client.Client, opts *ImportOpts) (*variableTarget, error) {
 	if opts.VariableSetName != "" {
 		id, err := resolveVariableSet(ctx, apiClient, opts)
 		if err != nil {
@@ -235,7 +235,7 @@ func resolveTarget(ctx context.Context, apiClient *client.Client, opts *Variable
 	}, nil
 }
 
-func resolveWorkspace(ctx context.Context, apiClient *client.Client, opts *VariableImportOpts) (string, error) {
+func resolveWorkspace(ctx context.Context, apiClient *client.Client, opts *ImportOpts) (string, error) {
 	endpoint, err := client.ResolveURL(apiClient.BaseURL, fmt.Sprintf("/organizations/%s/workspaces/%s", url.PathEscape(opts.Organization), url.PathEscape(opts.Workspace)))
 	if err != nil {
 		return "", err
@@ -261,7 +261,7 @@ func resolveWorkspace(ctx context.Context, apiClient *client.Client, opts *Varia
 	return payload.Data.ID, nil
 }
 
-func resolveVariableSet(ctx context.Context, apiClient *client.Client, opts *VariableImportOpts) (string, error) {
+func resolveVariableSet(ctx context.Context, apiClient *client.Client, opts *ImportOpts) (string, error) {
 	endpoint, err := client.ResolveURL(apiClient.BaseURL, fmt.Sprintf("/organizations/%s/varsets", url.PathEscape(opts.Organization)))
 	if err != nil {
 		return "", err

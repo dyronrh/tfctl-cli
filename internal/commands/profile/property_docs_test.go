@@ -7,9 +7,10 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/hashicorp/tfcloud/internal/pkg/iostreams"
 	"github.com/hashicorp/tfcloud/internal/pkg/profile"
-	"github.com/stretchr/testify/require"
 )
 
 func TestProfile_AvailableProperties_Coverage(t *testing.T) {

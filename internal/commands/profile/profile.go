@@ -1,21 +1,24 @@
 // Copyright IBM Corp. 2024, 2025
 // SPDX-License-Identifier: MPL-2.0
 
+// Package profile implements the `tfcloud profile` command group for managing tfcloud CLI profiles
 package profile
 
 import (
 	"fmt"
 	"strings"
 
+	"github.com/muesli/reflow/indent"
+	"golang.org/x/exp/maps"
+
 	"github.com/hashicorp/tfcloud/internal/commands/profile/profiles"
 	"github.com/hashicorp/tfcloud/internal/pkg/cmd"
 	"github.com/hashicorp/tfcloud/internal/pkg/heredoc"
 	"github.com/hashicorp/tfcloud/internal/pkg/ld"
 	"github.com/hashicorp/tfcloud/internal/pkg/profile"
-	"github.com/muesli/reflow/indent"
-	"golang.org/x/exp/maps"
 )
 
+// NewCmdProfile returns the `tfcloud profile` command for managing tfcloud CLI profiles.
 func NewCmdProfile(ctx *cmd.Context) *cmd.Command {
 	cmd := &cmd.Command{
 		Name:      "profile",

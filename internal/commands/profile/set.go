@@ -17,6 +17,7 @@ import (
 	"github.com/hashicorp/tfcloud/internal/pkg/profile"
 )
 
+// NewCmdSet returns the `tfcloud profile set` command for setting a tfcloud CLI property.
 func NewCmdSet(ctx *cmd.Context) *cmd.Command {
 	opts := &SetOpts{
 		Ctx:     ctx.ShutdownCtx,
@@ -65,7 +66,7 @@ func NewCmdSet(ctx *cmd.Context) *cmd.Command {
 			availablePropertiesDoc(ctx.IO),
 		},
 		NoAuthRequired: true,
-		RunF: func(c *cmd.Command, args []string) error {
+		RunF: func(_ *cmd.Command, args []string) error {
 			opts.Property = args[0]
 			opts.Value = args[1]
 			return setRun(opts)
@@ -75,6 +76,7 @@ func NewCmdSet(ctx *cmd.Context) *cmd.Command {
 	return cmd
 }
 
+// SetOpts defines the options for the `tfcloud profile set` command.
 type SetOpts struct {
 	Ctx     context.Context
 	IO      iostreams.IOStreams
@@ -138,9 +140,10 @@ func setRun(opts *SetOpts) error {
 
 	// Check to see if the property being set is valid
 	write := true
-	if opts.Property == "hostname" {
+	switch opts.Property {
+	case "hostname":
 		write, err = opts.validateHostname()
-	} else if opts.Property == "organization" {
+	case "organization":
 		write, err = opts.validateOrg()
 	}
 	if err != nil {

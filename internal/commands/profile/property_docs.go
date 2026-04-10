@@ -8,11 +8,12 @@ import (
 	"fmt"
 	"slices"
 
+	"github.com/muesli/reflow/indent"
+	"golang.org/x/exp/maps"
+
 	"github.com/hashicorp/tfcloud/internal/pkg/cmd"
 	"github.com/hashicorp/tfcloud/internal/pkg/heredoc"
 	"github.com/hashicorp/tfcloud/internal/pkg/iostreams"
-	"github.com/muesli/reflow/indent"
-	"golang.org/x/exp/maps"
 )
 
 // availableProperties returns a document section describing all the available

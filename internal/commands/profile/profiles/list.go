@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/tfcloud/internal/pkg/profile"
 )
 
+// NewCmdList returns the `tfcloud profile profiles list` command for listing tfcloud CLI profiles.
 func NewCmdList(ctx *cmd.Context) *cmd.Command {
 	opts := &ListOpts{
 		IO:     ctx.IO,
@@ -33,7 +34,7 @@ func NewCmdList(ctx *cmd.Context) *cmd.Command {
 			},
 		},
 		NoAuthRequired: true,
-		RunF: func(c *cmd.Command, args []string) error {
+		RunF: func(_ *cmd.Command, _ []string) error {
 			l, err := profile.NewLoader()
 			if err != nil {
 				return err
@@ -46,6 +47,7 @@ func NewCmdList(ctx *cmd.Context) *cmd.Command {
 	return cmd
 }
 
+// ListOpts defines the options for the `tfcloud profile profiles list` command.
 type ListOpts struct {
 	IO       iostreams.IOStreams
 	Output   *format.Outputter

@@ -21,6 +21,9 @@ linters:
     generated: lax
     rules:
       - linters:
+          - misspell
+        path: internal/commands/profile/profile_test.go
+      - linters:
           - bodyclose
           - errcheck
           - revive

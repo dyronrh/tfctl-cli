@@ -8,13 +8,15 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/mitchellh/mapstructure"
+
 	"github.com/hashicorp/tfcloud/internal/pkg/cmd"
 	"github.com/hashicorp/tfcloud/internal/pkg/heredoc"
 	"github.com/hashicorp/tfcloud/internal/pkg/iostreams"
 	"github.com/hashicorp/tfcloud/internal/pkg/profile"
-	"github.com/mitchellh/mapstructure"
 )
 
+// NewCmdUnset returns the `tfcloud profile unset` command for unsetting a tfcloud CLI property.
 func NewCmdUnset(ctx *cmd.Context) *cmd.Command {
 	opts := &UnsetOpts{
 		Ctx:     ctx.ShutdownCtx,
@@ -49,7 +51,7 @@ func NewCmdUnset(ctx *cmd.Context) *cmd.Command {
 			availablePropertiesDoc(ctx.IO),
 		},
 		NoAuthRequired: true,
-		RunF: func(c *cmd.Command, args []string) error {
+		RunF: func(_ *cmd.Command, args []string) error {
 			opts.Property = args[0]
 			l, err := profile.NewLoader()
 			if err != nil {
@@ -64,6 +66,7 @@ func NewCmdUnset(ctx *cmd.Context) *cmd.Command {
 	return cmd
 }
 
+// UnsetOpts defines the options for the `tfcloud profile unset` command.
 type UnsetOpts struct {
 	Ctx     context.Context
 	IO      iostreams.IOStreams

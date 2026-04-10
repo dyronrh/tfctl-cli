@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/tfcloud/internal/pkg/profile"
 )
 
+// NewCmdCreate returns the `tfcloud profile profiles create` command for creating a new tfcloud CLI profile.
 func NewCmdCreate(ctx *cmd.Context) *cmd.Command {
 	opts := &CreateOpts{
 		IO: ctx.IO,
@@ -61,7 +62,7 @@ func NewCmdCreate(ctx *cmd.Context) *cmd.Command {
 			},
 		},
 		NoAuthRequired: true,
-		RunF: func(c *cmd.Command, args []string) error {
+		RunF: func(_ *cmd.Command, args []string) error {
 			opts.Name = args[0]
 			l, err := profile.NewLoader()
 			if err != nil {
@@ -75,6 +76,7 @@ func NewCmdCreate(ctx *cmd.Context) *cmd.Command {
 	return cmd
 }
 
+// CreateOpts defines the options for the `tfcloud profile profiles create` command.
 type CreateOpts struct {
 	IO iostreams.IOStreams
 

@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/tfcloud/internal/pkg/profile"
 )
 
+// NewCmdDisplay returns the `tfcloud profile display` command for displaying the active profile.
 func NewCmdDisplay(ctx *cmd.Context) *cmd.Command {
 	cmd := &cmd.Command{
 		Name:      "display",
@@ -21,7 +22,7 @@ func NewCmdDisplay(ctx *cmd.Context) *cmd.Command {
 		LongHelp: heredoc.New(ctx.IO).Mustf(`
 		The {{ template "mdCodeOrBold" "tfcloud profile display" }} command displays the active profile.
 		`),
-		RunF: func(c *cmd.Command, args []string) error {
+		RunF: func(_ *cmd.Command, _ []string) error {
 			return displayRun(&DisplayOpts{
 				IO:      ctx.IO,
 				Profile: ctx.Profile,
@@ -34,6 +35,7 @@ func NewCmdDisplay(ctx *cmd.Context) *cmd.Command {
 	return cmd
 }
 
+// DisplayOpts defines the options for the `tfcloud profile display` command.
 type DisplayOpts struct {
 	IO      iostreams.IOStreams
 	Profile *profile.Profile
