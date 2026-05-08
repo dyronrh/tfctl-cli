@@ -1,7 +1,7 @@
 // Copyright IBM Corp. 2026
 // SPDX-License-Identifier: MPL-2.0
 
-// Package api implements the tfcloud CLI API command.
+// Package api implements the tfctl CLI API command.
 package api
 
 import (
@@ -20,13 +20,14 @@ import (
 
 	"github.com/posener/complete"
 
-	"github.com/hashicorp/tfcloud/internal/pkg/client"
-	"github.com/hashicorp/tfcloud/internal/pkg/cmd"
-	"github.com/hashicorp/tfcloud/internal/pkg/flagvalue"
-	"github.com/hashicorp/tfcloud/internal/pkg/format"
-	"github.com/hashicorp/tfcloud/internal/pkg/heredoc"
-	"github.com/hashicorp/tfcloud/internal/pkg/iostreams"
-	"github.com/hashicorp/tfcloud/internal/pkg/openapi"
+	"github.com/hashicorp/tfctl-cli/internal/config"
+	"github.com/hashicorp/tfctl-cli/internal/pkg/client"
+	"github.com/hashicorp/tfctl-cli/internal/pkg/cmd"
+	"github.com/hashicorp/tfctl-cli/internal/pkg/flagvalue"
+	"github.com/hashicorp/tfctl-cli/internal/pkg/format"
+	"github.com/hashicorp/tfctl-cli/internal/pkg/heredoc"
+	"github.com/hashicorp/tfctl-cli/internal/pkg/iostreams"
+	"github.com/hashicorp/tfctl-cli/internal/pkg/openapi"
 )
 
 const (
@@ -57,7 +58,7 @@ type Opts struct {
 	PageNumber   int
 }
 
-// NewCmdAPI creates the `tfcloud api` command.
+// NewCmdAPI creates the `api` command.
 func NewCmdAPI(ctx *cmd.Context) *cmd.Command {
 	opts := &Opts{
 		IO:          ctx.IO,
@@ -67,16 +68,16 @@ func NewCmdAPI(ctx *cmd.Context) *cmd.Command {
 
 	oas, oaserr := openapi.SchemaFactory(nil)
 	if oaserr != nil {
-		fmt.Fprintf(ctx.IO.Err(), "%s failed to load embedded openAPI spec, this is always a tfcloud bug", ctx.IO.ColorScheme().ErrorLabel())
+		fmt.Fprintf(ctx.IO.Err(), "%s failed to load embedded openAPI spec, this is always a %s bug", ctx.IO.ColorScheme().ErrorLabel(), config.Name)
 		panic(oaserr)
 	}
 
 	cmd := &cmd.Command{
 		Name:      "api",
 		ShortHelp: "Perform any API request",
-		LongHelp: heredoc.New(ctx.IO).Must(`
-		The {{ template "mdCodeOrBold" "tfcloud api" }} command performs any API v2 request.
-		`),
+		LongHelp: heredoc.New(ctx.IO).Mustf(`
+		The {{ template "mdCodeOrBold" "%s api" }} command performs any API v2 request.
+		`, config.Name),
 		Args: cmd.PositionalArguments{
 			// Predict paths from the OpenAPI spec for autocompletion.
 			Autocomplete: complete.PredictSet(oas.Paths().Keys()...),
@@ -164,24 +165,24 @@ func NewCmdAPI(ctx *cmd.Context) *cmd.Command {
 		Examples: []cmd.Example{
 			{
 				Preamble: "List workspaces in the default organization",
-				Command:  heredoc.New(ctx.IO, heredoc.WithNoWrap(), heredoc.WithPreserveNewlines()).Must(`$ tfcloud api /organizations/{organization}/workspaces`),
+				Command:  heredoc.New(ctx.IO, heredoc.WithNoWrap(), heredoc.WithPreserveNewlines()).Mustf(`$ %s api /organizations/{organization}/workspaces`, config.Name),
 			},
 			{
 				Preamble: "Create a project using attributes",
-				Command:  heredoc.New(ctx.IO, heredoc.WithNoWrap(), heredoc.WithPreserveNewlines()).Must(`$ tfcloud api /projects -a name=myproject`),
+				Command:  heredoc.New(ctx.IO, heredoc.WithNoWrap(), heredoc.WithPreserveNewlines()).Mustf(`$ %s api /projects -a name=myproject`, config.Name),
 			},
 			{
 				Preamble: "Add remote state consumer",
-				Command: heredoc.New(ctx.IO, heredoc.WithNoWrap(), heredoc.WithPreserveNewlines()).Must(`$ tfcloud api /workspaces/{workspace}/remote-state-consumers -p 'workspace=my-workspace' -i '{ "data: [
+				Command: heredoc.New(ctx.IO, heredoc.WithNoWrap(), heredoc.WithPreserveNewlines()).Mustf(`$ %s api /workspaces/{workspace}/remote-state-consumers -p 'workspace=my-workspace' -i '{ "data": [
 	{
 		"type":"remote-state-consumers",
 		"id": "ws-glkT5DSQKuY8pAJ"
 	}
-]}'`),
+]}'`, config.Name),
 			},
 			{
 				Preamble: "Create a workspace variable using a JSON:API request body",
-				Command: heredoc.New(ctx.IO, heredoc.WithNoWrap(), heredoc.WithPreserveNewlines()).Must(`$ tfcloud api /vars -i '{ "data": {
+				Command: heredoc.New(ctx.IO, heredoc.WithNoWrap(), heredoc.WithPreserveNewlines()).Mustf(`$ %s api /vars -i '{ "data": {
 	"type":"vars",
 	"attributes": {
 		"key":"AWS_ACCESS_KEY_ID",
@@ -197,7 +198,7 @@ func NewCmdAPI(ctx *cmd.Context) *cmd.Command {
 			}
 		}
 	}
-}}'`),
+}}'`, config.Name),
 			},
 		},
 		RunF: func(_ *cmd.Command, args []string) error {

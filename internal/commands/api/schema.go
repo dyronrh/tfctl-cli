@@ -8,10 +8,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hashicorp/tfcloud/internal/pkg/cmd"
-	"github.com/hashicorp/tfcloud/internal/pkg/format"
-	"github.com/hashicorp/tfcloud/internal/pkg/heredoc"
-	"github.com/hashicorp/tfcloud/internal/pkg/openapi"
+	"github.com/hashicorp/tfctl-cli/internal/config"
+	"github.com/hashicorp/tfctl-cli/internal/pkg/cmd"
+	"github.com/hashicorp/tfctl-cli/internal/pkg/format"
+	"github.com/hashicorp/tfctl-cli/internal/pkg/heredoc"
+	"github.com/hashicorp/tfctl-cli/internal/pkg/openapi"
 )
 
 type schemaOperationsLoader func(ctx *cmd.Context) (openapi.Schema, error)
@@ -31,10 +32,10 @@ func NewCmdAPISchema(ctx *cmd.Context) *cmd.Command {
 		Name:           "schema",
 		ShortHelp:      "Search and inspect API operations",
 		NoAuthRequired: true,
-		LongHelp: heredoc.New(ctx.IO).Must(`
-		The {{ template "mdCodeOrBold" "tfcloud api schema" }} command group lets you search
+		LongHelp: heredoc.New(ctx.IO).Mustf(`
+		The {{ template "mdCodeOrBold" "%s api schema" }} command group lets you search
 		for API operations from the OpenAPI spec and inspect a single operation schema.
-		`),
+		`, config.Name),
 	}
 
 	c.AddChild(newCmdAPISchemaSearch(ctx))
@@ -60,7 +61,7 @@ func newCmdAPISchemaSearch(ctx *cmd.Context) *cmd.Command {
 		},
 		Examples: []cmd.Example{{
 			Preamble: "Search for workspace operations",
-			Command:  "$ tfcloud api schema search workspace",
+			Command:  fmt.Sprintf("$ %s api schema search workspace", config.Name),
 		}},
 		RunF: func(_ *cmd.Command, args []string) error {
 			query := strings.Join(args, " ")
@@ -141,11 +142,11 @@ func newCmdAPISchemaGet(ctx *cmd.Context) *cmd.Command {
 		Examples: []cmd.Example{
 			{
 				Preamble: "Inspect the getWorkspace operation",
-				Command:  "$ tfcloud api schema get getWorkspace",
+				Command:  fmt.Sprintf("$ %s api schema get getWorkspace", config.Name),
 			},
 			{
 				Preamble: "Show all operations on a path",
-				Command:  "$ tfcloud api schema get /organizations/{organization}/workspaces",
+				Command:  fmt.Sprintf("$ %s api schema get /organizations/{organization}/workspaces", config.Name),
 			},
 		},
 		RunF: func(_ *cmd.Command, args []string) error {

@@ -1,7 +1,7 @@
 // Copyright IBM Corp. 2026
 // SPDX-License-Identifier: MPL-2.0
 
-// Package profile implements the `tfcloud profile` command group for managing tfcloud CLI profiles
+// Package profile implements the `profile` command group for managing configuration profiles
 package profile
 
 import (
@@ -11,29 +11,30 @@ import (
 	"github.com/muesli/reflow/indent"
 	"golang.org/x/exp/maps"
 
-	"github.com/hashicorp/tfcloud/internal/commands/profile/profiles"
-	"github.com/hashicorp/tfcloud/internal/pkg/cmd"
-	"github.com/hashicorp/tfcloud/internal/pkg/heredoc"
-	"github.com/hashicorp/tfcloud/internal/pkg/ld"
-	"github.com/hashicorp/tfcloud/internal/pkg/profile"
+	"github.com/hashicorp/tfctl-cli/internal/commands/profile/profiles"
+	"github.com/hashicorp/tfctl-cli/internal/config"
+	"github.com/hashicorp/tfctl-cli/internal/pkg/cmd"
+	"github.com/hashicorp/tfctl-cli/internal/pkg/heredoc"
+	"github.com/hashicorp/tfctl-cli/internal/pkg/ld"
+	"github.com/hashicorp/tfctl-cli/internal/pkg/profile"
 )
 
-// NewCmdProfile returns the `tfcloud profile` command for managing tfcloud CLI profiles.
+// NewCmdProfile returns the `profile` command for managing configuration profiles.
 func NewCmdProfile(ctx *cmd.Context) *cmd.Command {
 	cmd := &cmd.Command{
 		Name:      "profile",
-		ShortHelp: "View and edit tfcloud CLI properties.",
-		LongHelp: heredoc.New(ctx.IO).Must(`
-		The {{ template "mdCodeOrBold" "tfcloud profile" }} command group lets you initialize,
-		set, view and unset properties used by the tfcloud CLI.
+		ShortHelp: fmt.Sprintf("View and edit %s CLI configuration properties.", config.Name),
+		LongHelp: heredoc.New(ctx.IO).Mustf(`
+		The {{ template "mdCodeOrBold" "%s profile" }} command group lets you initialize,
+		set, view and unset properties used by the %s CLI.
 
 		A profile is a collection of properties/configuration values that inform the behavior
-		of {{ template "mdCodeOrBold" "tfcloud" }} CLI. You can create additional profiles
-		using {{ template "mdCodeOrBold" "tfcloud profile profiles create" }}.
+		of {{ template "mdCodeOrBold" "%s" }} CLI. You can create additional profiles
+		using {{ template "mdCodeOrBold" "%s profile profiles create" }}.
 
-		To switch between profiles, use {{ template "mdCodeOrBold" "tfcloud profile profiles activate" }}.
+		To switch between profiles, use {{ template "mdCodeOrBold" "%s profile profiles activate" }}.
 
-		{{ template "mdCodeOrBold" "tfcloud" }} has several global flags that have matching profile properties.
+		{{ template "mdCodeOrBold" "%s" }} has several global flags that have matching profile properties.
 		Examples are the {{ template "mdCodeOrBold" "verbosity" }} and
 		{{ template "mdCodeOrBold" "organization" }} properties and their respective flags
 		{{ template "mdCodeOrBold" "--debug" }} and {{ template "mdCodeOrBold" "--organization" }}.
@@ -44,7 +45,7 @@ func NewCmdProfile(ctx *cmd.Context) *cmd.Command {
 
 		To run a command using a profile other than the active profile, pass the
 		{{ template "mdCodeOrBold" "--profile" }} flag to the command.
-		`),
+		`, config.Name, config.Name, config.Name, config.Name, config.Name, config.Name),
 	}
 
 	cmd.AddChild(NewCmdDisplay(ctx))

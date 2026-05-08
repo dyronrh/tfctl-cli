@@ -8,14 +8,15 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/hashicorp/tfcloud/internal/pkg/cmd"
-	"github.com/hashicorp/tfcloud/internal/pkg/format"
-	"github.com/hashicorp/tfcloud/internal/pkg/heredoc"
-	"github.com/hashicorp/tfcloud/internal/pkg/iostreams"
-	"github.com/hashicorp/tfcloud/internal/pkg/profile"
+	"github.com/hashicorp/tfctl-cli/internal/config"
+	"github.com/hashicorp/tfctl-cli/internal/pkg/cmd"
+	"github.com/hashicorp/tfctl-cli/internal/pkg/format"
+	"github.com/hashicorp/tfctl-cli/internal/pkg/heredoc"
+	"github.com/hashicorp/tfctl-cli/internal/pkg/iostreams"
+	"github.com/hashicorp/tfctl-cli/internal/pkg/profile"
 )
 
-// NewCmdList returns the `tfcloud profile profiles list` command for listing tfcloud CLI profiles.
+// NewCmdList returns the `profile profiles list` command for listing configuration profiles.
 func NewCmdList(ctx *cmd.Context) *cmd.Command {
 	opts := &ListOpts{
 		IO:     ctx.IO,
@@ -23,14 +24,14 @@ func NewCmdList(ctx *cmd.Context) *cmd.Command {
 	}
 	cmd := &cmd.Command{
 		Name:      "list",
-		ShortHelp: "List existing tfcloud profiles.",
-		LongHelp: heredoc.New(ctx.IO).Must(`
-		The {{ template "mdCodeOrBold" "tfcloud profile profiles list" }} command lists existing tfcloud profiles.
-		`),
+		ShortHelp: "List existing configuration profiles.",
+		LongHelp: heredoc.New(ctx.IO).Mustf(`
+		The {{ template "mdCodeOrBold" "%s profile profiles list" }} command lists existing configuration profiles.
+		`, config.Name),
 		Examples: []cmd.Example{
 			{
 				Preamble: "To list existing profiles, run:",
-				Command:  "$ tfcloud profile profiles list",
+				Command:  fmt.Sprintf("$ %s profile profiles list", config.Name),
 			},
 		},
 		NoAuthRequired: true,
@@ -47,7 +48,7 @@ func NewCmdList(ctx *cmd.Context) *cmd.Command {
 	return cmd
 }
 
-// ListOpts defines the options for the `tfcloud profile profiles list` command.
+// ListOpts defines the options for the `profile profiles list` command.
 type ListOpts struct {
 	IO       iostreams.IOStreams
 	Output   *format.Outputter
