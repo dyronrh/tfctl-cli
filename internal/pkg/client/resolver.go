@@ -99,3 +99,74 @@ func extractCurrentRunID(rel models.RunsIdable, wsRef string) (string, error) {
 	}
 	return "", fmt.Errorf("no current run for workspace %s", wsRef)
 }
+
+// ResolveFromName resolves a resource ID from a name, based on the resource type. If the resource type is not recognized, the name is returned as-is.
+func (r Resolver) ResolveFromName(goCtx context.Context, resourceType, org, name string) (*string, error) {
+	switch resourceType {
+	case "workspaces":
+		return r.Workspace(goCtx, org, name)
+	case "teams":
+		return r.Team(goCtx, org, name)
+	case "projects":
+		return r.Project(goCtx, org, name)
+	case "varsets":
+		return r.VariableSet(goCtx, org, name)
+	default:
+		return &name, nil
+	}
+}
+
+// Workspace resolves a workspace by organization + name.
+func (r Resolver) Workspace(ctx context.Context, organization, name string) (*string, error) {
+	ws, err := r.client.TFE.API.Organizations().ByOrganization_name(organization).Workspaces().ByWorkspace_name(name).Get(ctx, nil)
+	if err != nil {
+		return nil, fmt.Errorf("workspace %q not found in organization %q: %w", name, organization, err)
+	}
+	return ws.GetData().GetId(), nil
+}
+
+// Team resolves a team by organization + name.
+func (r Resolver) Team(ctx context.Context, organization, name string) (*string, error) {
+	requestConfig := &abstractions.RequestConfiguration[organizations.ItemTeamsRequestBuilderGetQueryParameters]{
+		QueryParameters: &organizations.ItemTeamsRequestBuilderGetQueryParameters{
+			Filternames: &name,
+		},
+	}
+
+	items, err := r.client.TFE.API.Organizations().ByOrganization_name(organization).Teams().Get(ctx, requestConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, item := range items.GetData() {
+		att := item.GetAttributes()
+		if att.GetName() != nil && *att.GetName() == name {
+			return item.GetId(), nil
+		}
+	}
+
+	return nil, fmt.Errorf("team %q not found in organization %q", name, organization)
+}
+
+// Project resolves a project by organization + name.
+func (r Resolver) Project(ctx context.Context, organization, name string) (*string, error) {
+	requestConfig := &abstractions.RequestConfiguration[organizations.ItemProjectsRequestBuilderGetQueryParameters]{
+		QueryParameters: &organizations.ItemProjectsRequestBuilderGetQueryParameters{
+			Filternames: &name,
+		},
+	}
+
+	items, err := r.client.TFE.API.Organizations().ByOrganization_name(organization).Projects().Get(ctx, requestConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, item := range items.GetData() {
+		att := item.GetAttributes()
+		if att.GetName() != nil && *att.GetName() == name {
+			return item.GetId(), nil
+		}
+	}
+
+	return nil, fmt.Errorf("project %q not found in organization %q", name, organization)
+}
