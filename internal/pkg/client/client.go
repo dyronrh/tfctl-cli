@@ -44,12 +44,30 @@ type Request struct {
 }
 
 // New constructs a configured API client from an API address and token.
-func New(address, token string, defaultHeaders http.Header) (*Client, error) {
-	tfeClient, err := tfe.NewClient(&tfe.Config{
-		Address: address,
-		Token:   token,
-		Headers: defaultHeaders,
-	})
+// If logger is non-nil, retry attempts are logged at debug level.
+func New(address, token string, defaultHeaders http.Header, logger hclog.Logger) (*Client, error) {
+	cfg := &tfe.Config{
+		Address:           address,
+		Token:             token,
+		Headers:           defaultHeaders,
+		RetryServerErrors: true,
+		RetryRateLimited:  true,
+		RetryMaxRetries:   5,
+	}
+	cfg.RetryHook = func(attemptNum int, resp *http.Response) {
+		status := 0
+		url := ""
+		method := ""
+		if resp != nil {
+			status = resp.StatusCode
+			if resp.Request != nil {
+				url = resp.Request.URL.String()
+				method = resp.Request.Method
+			}
+		}
+		logger.Debug("Retrying API request", "attempt", attemptNum, "status", status, "method", method, "url", url)
+	}
+	tfeClient, err := tfe.NewClient(cfg)
 	if err != nil {
 		return nil, err
 	}
@@ -107,6 +125,10 @@ func (c *Client) Do(ctx context.Context, req *Request) (*http.Response, error) {
 			return nil, urlErr.Err
 		}
 		return nil, err
+	}
+
+	if httpResp.StatusCode >= 400 {
+		return nil, tfe.APIErrorFactory(httpResp, nil)
 	}
 
 	return httpResp, nil
