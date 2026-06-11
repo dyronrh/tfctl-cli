@@ -4,12 +4,12 @@
 package profile
 
 import (
+	"context"
 	"path"
 	"strings"
 	"testing"
 	"time"
 
-	"github.com/hashicorp/go-hclog"
 	"github.com/posener/complete"
 	"github.com/stretchr/testify/require"
 )
@@ -96,14 +96,14 @@ func TestProfile_Predict(t *testing.T) {
 			Args: complete.Args{
 				All: []string{""},
 			},
-			Expected: []string{"organization", "no_color", "verbosity", "quiet", "hostname", "token"},
+			Expected: []string{"organization", "no_color", "verbosity", "quiet", "hostname", "token", "telemetry"},
 		},
 		{
 			Name: "specific field",
 			Args: complete.Args{
 				All: []string{"org"},
 			},
-			Expected: []string{"organization", "no_color", "verbosity", "quiet", "hostname", "token"},
+			Expected: []string{"organization", "no_color", "verbosity", "quiet", "hostname", "token", "telemetry"},
 		},
 	}
 
@@ -148,7 +148,7 @@ func TestProfile_HostCache(t *testing.T) {
 		Hostname:     "example.com",
 		hostCacheDir: t.TempDir(),
 	}
-	h, err := p.HostCache(hclog.NewNullLogger())
+	h, err := p.HostCache(context.Background())
 	r.NoError(err)
 
 	now := time.Now()

@@ -20,7 +20,9 @@ import (
 	"github.com/hashicorp/tfctl-cli/internal/pkg/cmd"
 	"github.com/hashicorp/tfctl-cli/internal/pkg/format"
 	"github.com/hashicorp/tfctl-cli/internal/pkg/iostreams"
+	"github.com/hashicorp/tfctl-cli/internal/pkg/logging"
 	"github.com/hashicorp/tfctl-cli/internal/pkg/profile"
+	"github.com/hashicorp/tfctl-cli/internal/pkg/telemetry"
 	"github.com/hashicorp/tfctl-cli/version"
 )
 
@@ -53,6 +55,13 @@ func realMain() int {
 		}
 	}()
 
+	// The logger level will need to be set by the command after parsing flags.
+	logger := logging.NewLogger(io)
+
+	// Add the logger to the shutdown context because this is the context used throughout
+	// the command execution lifecycle.
+	shutdownCtx = logging.WithLogger(shutdownCtx, logger)
+
 	// TODO: check version for updates?
 
 	activeProfile, err := loadActiveProfile()
@@ -66,8 +75,23 @@ func realMain() int {
 		io.ForceNoColor()
 	}
 
-	// Create the command context
-	cCtx := &cmd.Context{
+	// Initialize telemetry
+	var profileTelemetry string
+	if activeProfile != nil {
+		profileTelemetry = activeProfile.GetTelemetry()
+	}
+	tel := telemetry.Init(shutdownCtx, telemetry.Config{
+		Hostname:         activeProfile.GetHostname(),
+		ProfileTelemetry: profileTelemetry,
+		Version:          version.Version,
+		ErrWriter:        io.Err(),
+		IsTTY:            io.IsOutputTTY(),
+	})
+
+	shutdownCtx = telemetry.WithTelemetry(shutdownCtx, tel)
+
+	// Create the command invocation
+	inv := &cmd.Invocation{
 		IO:          io,
 		Profile:     activeProfile,
 		Output:      format.New(io),
@@ -75,8 +99,8 @@ func realMain() int {
 	}
 
 	// Get the HCP Root command
-	tfctlCmd := root.NewCmdRoot(cCtx)
-	cmdMap := cmd.ToCommandMap(tfctlCmd, cCtx)
+	tfctlCmd := root.NewCmdRoot(inv)
+	cmdMap := cmd.ToCommandMap(tfctlCmd, inv)
 
 	c := cli.CLI{
 		Version:                    version.Version,
@@ -102,6 +126,11 @@ func realMain() int {
 	status, err := c.Run()
 	if err != nil {
 		fmt.Fprintf(io.Err(), "Error executing %s: %s\n", version.Name, err.Error())
+	}
+
+	// Don't worry about telemetry errors at all
+	if err = tel.Shutdown(shutdownCtx, status); err != nil {
+		logger.Debug("Error occurred while shutting down telemetry", "error", err)
 	}
 
 	return status

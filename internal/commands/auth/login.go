@@ -10,9 +10,7 @@ import (
 	"fmt"
 	"strings"
 
-	tfe "github.com/hashicorp/go-tfe"
-
-	"github.com/hashicorp/go-hclog"
+	tfe "github.com/hashicorp/go-tfe/v2"
 
 	"github.com/hashicorp/tfctl-cli/internal/pkg/client"
 	"github.com/hashicorp/tfctl-cli/internal/pkg/cmd"
@@ -20,6 +18,7 @@ import (
 	"github.com/hashicorp/tfctl-cli/internal/pkg/format"
 	"github.com/hashicorp/tfctl-cli/internal/pkg/heredoc"
 	"github.com/hashicorp/tfctl-cli/internal/pkg/iostreams"
+	"github.com/hashicorp/tfctl-cli/internal/pkg/logging"
 	"github.com/hashicorp/tfctl-cli/internal/pkg/profile"
 	"github.com/hashicorp/tfctl-cli/version"
 )
@@ -30,19 +29,18 @@ const (
 )
 
 // NewCmdLogin returns the `auth login` command for authenticating.
-func NewCmdLogin(ctx *cmd.Context) *cmd.Command {
+func NewCmdLogin(inv *cmd.Invocation) *cmd.Command {
 	opts := &LoginOpts{
-		Ctx:         ctx.ShutdownCtx,
-		IO:          ctx.IO,
-		Profile:     ctx.Profile,
-		Output:      ctx.Output,
+		IO:          inv.IO,
+		Profile:     inv.Profile,
+		Output:      inv.Output,
 		OpenBrowser: openBrowser,
 	}
 
 	cmd := &cmd.Command{
 		Name:      "login",
 		ShortHelp: "Authenticate with HCP Terraform or Terraform Enterprise.",
-		LongHelp: heredoc.New(ctx.IO).Mustf(`
+		LongHelp: heredoc.New(inv.IO).Mustf(`
 		The {{ template "mdCodeOrBold" "%[1]s auth login" }} command authenticates
 		the %[1]s CLI with HCP Terraform or Terraform Enterprise.
 
@@ -75,10 +73,9 @@ func NewCmdLogin(ctx *cmd.Context) *cmd.Command {
 			},
 		},
 		NoAuthRequired: true,
-		RunF: func(c *cmd.Command, _ []string) error {
-			opts.Logger = c.Logger(ctx)
-			opts.DryRun = ctx.IsDryRun()
-			return loginRun(ctx, opts)
+		RunF: func(_ *cmd.Command, _ []string) error {
+			opts.DryRun = inv.IsDryRun()
+			return loginRun(inv.ShutdownCtx, inv, opts)
 		},
 	}
 
@@ -87,11 +84,9 @@ func NewCmdLogin(ctx *cmd.Context) *cmd.Command {
 
 // LoginOpts defines the options for the `auth login` command.
 type LoginOpts struct {
-	Ctx     context.Context
 	IO      iostreams.IOStreams
 	Profile *profile.Profile
 	Output  *format.Outputter
-	Logger  hclog.Logger
 
 	// OpenBrowser opens a URL in the user's default browser. When nil, the
 	// package default openBrowser is used. Tests inject a no-op opener to avoid
@@ -103,10 +98,11 @@ type LoginOpts struct {
 	DryRun bool
 }
 
-func loginRun(cmdCtx *cmd.Context, opts *LoginOpts) error {
+func loginRun(ctx context.Context, inv *cmd.Invocation, opts *LoginOpts) error {
 	hostname := opts.Profile.GetHostname()
+	logger := logging.FromContext(ctx)
 
-	opts.Logger.Debug("starting login process", "hostname", hostname, "token_from_stdin", opts.Token)
+	logger.Debug("starting login process", "hostname", hostname, "token_from_stdin", opts.Token)
 
 	// Read the token.
 	var token string
@@ -122,13 +118,13 @@ func loginRun(cmdCtx *cmd.Context, opts *LoginOpts) error {
 
 	// Set the token on the profile and create a client to verify it.
 	opts.Profile.Token = token
-	opts.Logger.Debug("verifying token", "hostname", hostname)
-	apiClient, err := cmdCtx.NewAPIClient(opts.Logger)
+	logger.Debug("verifying token", "hostname", hostname)
+	apiClient, err := inv.NewAPIClient()
 	if err != nil {
 		return fmt.Errorf("failed to create API client: %w", err)
 	}
 
-	return saveToken(opts, apiClient, hostname, token)
+	return saveToken(ctx, opts, apiClient, hostname, token)
 }
 
 // readTokenFromStdin reads a token from stdin.
@@ -186,10 +182,10 @@ func readTokenInteractive(opts *LoginOpts, hostname string) (string, error) {
 }
 
 // saveToken verifies the token via the API and persists it to the profile.
-func saveToken(opts *LoginOpts, apiClient *client.Client, hostname, token string) error {
+func saveToken(ctx context.Context, opts *LoginOpts, apiClient *client.Client, hostname, token string) error {
 	cs := opts.IO.ColorScheme()
 
-	user, err := verifyToken(opts.Ctx, apiClient)
+	user, err := verifyToken(ctx, apiClient)
 	if err != nil {
 		return fmt.Errorf("failed to verify token: %w", err)
 	}
